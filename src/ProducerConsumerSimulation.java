@@ -80,15 +80,14 @@ public class ProducerConsumerSimulation {
         private void put(String message) throws InterruptedException {
             lock.lock();
             try {
-
                 while (count == ringBuffer.length) {
                     notFull.await();
                 }
+                int position = head;
                 ringBuffer[head] = message;
                 head = (head + 1) % ringBuffer.length;
                 count++;
 
-                int position = (head - 1 + ringBuffer.length) % ringBuffer.length;
                 System.out.printf("%s добавил %s на позицию %d\n", getName(), message, position);
                 notEmpty.signal();
             } finally {
@@ -119,12 +118,12 @@ public class ProducerConsumerSimulation {
                 while (count == 0) {
                     notEmpty.await();
                 }
+                int position = tail;
                 String message = ringBuffer[tail];
                 ringBuffer[tail] = null;
                 tail = (tail + 1) % ringBuffer.length;
                 count--;
 
-                int position = (tail - 1 + ringBuffer.length) % ringBuffer.length;
                 System.out.printf("%s забрал %s на позиции %d\n", getName(), message, position);
                 notFull.signal();
             } finally {

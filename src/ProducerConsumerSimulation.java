@@ -1,3 +1,4 @@
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -14,18 +15,32 @@ public class ProducerConsumerSimulation {
     private static final ReentrantLock lock = new ReentrantLock();
     private static final Condition notFull = lock.newCondition();
     private static final Condition notEmpty = lock.newCondition();
+    private static final AtomicInteger threadsAlive = new AtomicInteger();
 
     private static String[] ringBuffer;
     private static int head = 0;
     private static int tail = 0;
     private static int count = 0;
 
-
     public static void main(String[] args) {
         if (!checkArguments(args)) {
             return;
         }
+        threadsAlive.set(nProducers + nConsumers);
         ringBuffer = new String[bufferSize];
+        Date startTime = new Date();
+        System.out.println("Начало работы многопоточной программы");
+
+        new Thread(() -> {
+            while (true) {
+                if (threadsAlive.get() <= 0) {
+                    Date endTime = new Date();
+                    System.out.printf("Время выполнения программы составило %.4f секунд\n", (endTime.getTime() - startTime.getTime()) / 1000d);
+                    break;
+                }
+            }
+        }).start();
+
         for (int i = 0; i < nProducers; i++) {
             new Producer(i + 1).start();
         }
@@ -70,8 +85,13 @@ public class ProducerConsumerSimulation {
         @Override
         public void run() {
             try {
-                while (totalProduced.get() < messageCount) {
-                    String message = "Сообщение №" + totalProduced.incrementAndGet();
+                while (true) {
+                    int producedNum = totalProduced.incrementAndGet();
+                    if (producedNum > messageCount) {
+                        threadsAlive.decrementAndGet();
+                        break;
+                    }
+                    String message = "Сообщение №" + producedNum;
                     put(message);
                 }
             } catch (InterruptedException ignored) {}
@@ -106,8 +126,12 @@ public class ProducerConsumerSimulation {
         @Override
         public void run() {
             try {
-                while (totalConsumed.get() < messageCount) {
-                    totalConsumed.incrementAndGet();
+                while (true) {
+                    int consumedNum = totalConsumed.incrementAndGet();
+                    if (consumedNum > messageCount) {
+                        threadsAlive.decrementAndGet();
+                        break;
+                    }
                     take();
                 }
             } catch (InterruptedException ignored) {}

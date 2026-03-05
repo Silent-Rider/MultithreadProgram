@@ -106,7 +106,8 @@ public class ProducerConsumerSimulation {
         @Override
         public void run() {
             try {
-                while (totalConsumed.getAndIncrement() < messageCount) {
+                while (totalConsumed.get() < messageCount) {
+                    totalConsumed.incrementAndGet();
                     take();
                 }
             } catch (InterruptedException ignored) {}

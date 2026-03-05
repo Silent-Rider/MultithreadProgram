@@ -34,8 +34,8 @@ public class ProducerConsumerSimulation {
         new Thread(() -> {
             while (true) {
                 if (threadsAlive.get() <= 0) {
-                    Date endTime = new Date();
-                    System.out.printf("Время выполнения программы составило %.4f секунд\n", (endTime.getTime() - startTime.getTime()) / 1000d);
+                    double seconds = (new Date().getTime() - startTime.getTime()) / 1000d;
+                    System.out.printf("Время выполнения программы составило %.4f секунд\n", seconds);
                     break;
                 }
             }

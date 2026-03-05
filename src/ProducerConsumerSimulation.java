@@ -21,11 +21,14 @@ public class ProducerConsumerSimulation {
     private static int head = 0;
     private static int tail = 0;
     private static int count = 0;
+    private static int logStep;
 
     public static void main(String[] args) {
         if (!checkArguments(args)) {
             return;
         }
+        logStep = (messageCount / 50) == 0 ? 1 : (messageCount / 50);
+
         threadsAlive.set(nProducers + nConsumers);
         ringBuffer = new String[bufferSize];
         Date startTime = new Date();
@@ -108,7 +111,10 @@ public class ProducerConsumerSimulation {
                 head = (head + 1) % ringBuffer.length;
                 count++;
 
-                System.out.printf("%s добавил %s на позицию %d\n", getName(), message, position);
+                int messageNumber = Integer.parseInt(message.substring(message.indexOf('№') + 1));
+                if (messageNumber % logStep == 0 || messageNumber == 1 || messageNumber == messageCount) {
+                    System.out.printf("%s добавил %s на позицию %d\n", getName(), message, position);
+                }
                 notEmpty.signal();
             } finally {
                 lock.unlock();
@@ -149,7 +155,10 @@ public class ProducerConsumerSimulation {
                 tail = (tail + 1) % ringBuffer.length;
                 count--;
 
-                System.out.printf("%s забрал %s на позиции %d\n", getName(), message, position);
+                int messageNumber = Integer.parseInt(message.substring(message.indexOf('№') + 1));
+                if (messageNumber % logStep == 0 || messageNumber == 1 || messageNumber == messageCount) {
+                    System.out.printf("%s забрал %s на позиции %d\n", getName(), message, position);
+                }
                 notFull.signal();
             } finally {
                 lock.unlock();

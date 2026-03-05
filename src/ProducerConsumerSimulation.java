@@ -27,7 +27,7 @@ public class ProducerConsumerSimulation {
         if (!checkArguments(args)) {
             return;
         }
-        logStep = (messageCount / 50) == 0 ? 1 : (messageCount / 50);
+        logStep = (messageCount / 25) == 0 ? 1 : (messageCount / 25);
 
         threadsAlive.set(nProducers + nConsumers);
         ringBuffer = new String[bufferSize];

@@ -12,10 +12,10 @@ public class ProducerConsumerSimulation {
 
     private static final AtomicInteger totalProduced = new AtomicInteger(0);
     private static final AtomicInteger totalConsumed = new AtomicInteger(0);
+    private static final AtomicInteger threadsAlive = new AtomicInteger();
     private static final ReentrantLock lock = new ReentrantLock();
     private static final Condition notFull = lock.newCondition();
     private static final Condition notEmpty = lock.newCondition();
-    private static final AtomicInteger threadsAlive = new AtomicInteger();
 
     private static String[] ringBuffer;
     private static int head = 0;
